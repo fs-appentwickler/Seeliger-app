@@ -32,3 +32,30 @@ if (toggle && navigation) {
 document.querySelectorAll('[data-year]').forEach(element => {
   element.textContent = new Date().getFullYear();
 });
+
+// Videodatei erst beim bewussten Anklicken des Vorschaubilds laden.
+document.querySelectorAll('.video-preview-button[data-video-src]').forEach(button => {
+  const container = button.closest('.video-preview');
+  const video = container.querySelector('video');
+  const message = container.querySelector('.video-message');
+  button.addEventListener('click', () => {
+    document.querySelectorAll('.app-video').forEach(other => {
+      if (other !== video) other.pause();
+    });
+    if (!video.getAttribute('src')) video.src = button.dataset.videoSrc;
+    button.hidden = true;
+    video.hidden = false;
+    video.focus();
+    video.play().catch(() => {
+      message.textContent = 'Bitte drücken Sie die Wiedergabetaste im Video.';
+      message.hidden = false;
+    });
+  });
+  video.addEventListener('error', () => {
+    message.textContent = 'Das Video konnte nicht geladen werden. Bitte versuchen Sie es später erneut.';
+    message.hidden = false;
+    video.hidden = true;
+    button.hidden = false;
+  });
+  video.addEventListener('playing', () => { message.hidden = true; });
+});
